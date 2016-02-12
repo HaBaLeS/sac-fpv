@@ -1,0 +1,13 @@
+Another APP Doing the same thing:
+
+- https://github.com/Consti10/myMediaCodecPlayer-for-FPV
+- https://befinitiv.wordpress.com/wifibroadcast-analog-like-transmission-of-live-video-data/
+- http://fpv-community.de/showthread.php?64819-FPV-Wifi-Broadcasting-HD-Video-Thread-zum-Raspberry-HD-Videolink-fon-Befi
+
+
+Examples for MediaCodec:
+-http://bigflake.com/mediacodec/
+-https://gist.github.com/wobbals/3990442
+-https://developer.android.com/reference/android/media/MediaCodec.html
+
+
