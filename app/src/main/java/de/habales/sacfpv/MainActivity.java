@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import org.jcodec.common.DictionaryCompressor;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,15 +23,16 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
-        Button mSurfaceViewB=(Button)findViewById(R.id.button);
-        mSurfaceViewI=new Intent();
-        mSurfaceViewI.setClass(this, SurfaceViewActivity.class);
-        mSurfaceViewB.setOnClickListener(new View.OnClickListener() {
+        Button startFileSystemPlayer =  (Button)findViewById(R.id.startReplay);
+        startFileSystemPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(mSurfaceViewI);
+                Intent startReplayIntent = new Intent();
+                startReplayIntent.setClass(MainActivity.this, RecordingPlaybackActivity.class);
+                startActivity(startReplayIntent);
             }
         });
+
         Button mSurfaceTextureB=(Button)findViewById(R.id.button2);
         mTextureViewI=new Intent();
         mTextureViewI.setClass(this, TextureViewActivity.class);
