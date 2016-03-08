@@ -2,6 +2,7 @@ package de.habales.sacfpv;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetFileDescriptor;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -36,8 +37,16 @@ public class RecordingPlaybackActivity extends Activity implements SurfaceHolder
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+
+        //decoderThread = new H264DecodeThreadBlafasel(holder.getSurface());
+        decoderThread = new H264DecodeThreadUDP(holder.getSurface());
+        //decoderThread = new H264DecodeThreadFileBasedLogging(holder.getSurface());
         //decoderThread = new H264DecodeThread(holder.getSurface());
-        decoderThread = new H264DecodeThreadFileBased(holder.getSurface());
+        //decoderThread = new H264DecodeThreadFileBased(holder.getSurface());
+
+
+
+
         decoderThread.start();
     }
 

@@ -28,6 +28,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /*
 receives raw h.264 byte stream on udp port 5000,parses the data into NALU units,and passes them into a MediaCodec Instance.
@@ -215,6 +216,9 @@ public class UdpReceiverDecoderThread extends Thread {
                             nalu_data[1] = 0;
                             nalu_data[2] = 0;
                             nalu_data[3] = 1;
+                            String frame = getHex(Arrays.copyOfRange(nalu_data,0,nalu_data_position-4));
+                            Log.d("my", "LEN: " + (nalu_data_position-4));
+                            Log.d("my", "parseDatagram: " + frame);
                             interpretNalu(nalu_data, nalu_data_position - 4);
                             nalu_data_position = 4;
                         }
@@ -315,6 +319,7 @@ public class UdpReceiverDecoderThread extends Thread {
                 inputBuffers = decoder.getInputBuffers();
                 int inputBufferIndex = decoder.dequeueInputBuffer(0);
                 if (inputBufferIndex >= 0) {
+                    System.out.println("Using Buffer: " + inputBufferIndex);
                     ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
                     inputBuffer.put(n, 0, len);
                     //decoder.queueInputBuffer(inputBufferIndex, 0, len, 0, 0);
@@ -325,6 +330,7 @@ public class UdpReceiverDecoderThread extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
                 //System.out.println("Error Qeueing in/out Buffers");
+                throw new RuntimeException(e);
             }
             /*
             int count1=0;
@@ -370,8 +376,8 @@ public class UdpReceiverDecoderThread extends Thread {
 
                 //for GLSurfaceView,to drop the latest frames except the newest one,the timestamp has to be near the VSYNC signal.
                 //requires android 5
-                decoder.releaseOutputBuffer(outputBufferIndex,System.nanoTime()); //needs api 21
-                //decoder.releaseOutputBuffer(outputBufferIndex,true);
+                //decoder.releaseOutputBuffer(outputBufferIndex,System.nanoTime()); //needs api 21
+                decoder.releaseOutputBuffer(outputBufferIndex,true);
 
             } else if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 Log.d("UDP", "output format changed");
@@ -429,5 +435,14 @@ public class UdpReceiverDecoderThread extends Thread {
         public void stop(){
             try {out.close();} catch (IOException e) {e.printStackTrace();Log.w("GroundRecorder", "couldn't close");}
         }
+    }
+    private static final String HEXES = "0123456789ABCDEF";
+
+    static String getHex(byte[] raw) {
+        final StringBuilder hex = new StringBuilder(2 * raw.length);
+        for (final byte b : raw) {
+            hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+        }
+        return hex.toString();
     }
 }

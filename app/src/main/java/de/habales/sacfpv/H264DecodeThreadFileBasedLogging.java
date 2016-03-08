@@ -14,10 +14,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class H264DecodeThread extends Thread {
+public class H264DecodeThreadFileBasedLogging extends Thread {
 
     static final String TAG = "DCT";
     static final String H264_MIME = "video/avc";
+    private static final String HEXES = "0123456789ABCDEF";
 
     private Surface surfaceToDrawOn;
     private MediaExtractor mediaExtractor;
@@ -28,7 +29,7 @@ public class H264DecodeThread extends Thread {
      * Construct a new decoder thread for Surface
      * @param surfaceToDrawOn
      */
-    public H264DecodeThread(Surface surfaceToDrawOn){
+    public H264DecodeThreadFileBasedLogging(Surface surfaceToDrawOn){
         this.surfaceToDrawOn = surfaceToDrawOn;
     }
 
@@ -46,6 +47,12 @@ public class H264DecodeThread extends Thread {
             //fmt.setString(MediaFormat.KEY_FRAME_RATE, null);
             //MediaFormat fmt = getMediaFormat(640,480,25);
             //MediaFormat fmt = getMediaFormat(640,480,25);
+
+            ByteBuffer sps = fmt.getByteBuffer("csd-0");
+            ByteBuffer spp = fmt.getByteBuffer("csd-1");
+
+            String SPS = getHex(sps.array());
+            String SPP = getHex(spp.array());
 
 
             MediaFormat format = mediaExtractor.getTrackFormat(0);
@@ -89,6 +96,13 @@ public class H264DecodeThread extends Thread {
                     inputBuffer.get(mv);
                     inputBuffer.rewind();
 
+                    String frame = getHex(mv);
+                    boolean multi = frame.substring(10).contains("000001");
+                    if(multi){
+                        //throw new RuntimeException("Multi\n" + frame);
+                    }
+                    Log.d(TAG, "run: Frame " + frameCnt);
+
                     if(len == -1 ){
                         Log.d(TAG, "No more Samples in Media");
                     } else {
@@ -122,7 +136,7 @@ public class H264DecodeThread extends Thread {
                 } else {
                     Log.d(TAG, "NR No output buffer" + outputBufferIndex);
                 }
-                    
+
             }
         } catch (Exception e) {
             throw new RuntimeException("Error processing file!",e);
@@ -152,7 +166,7 @@ public class H264DecodeThread extends Thread {
         mediaExtractor.setDataSource(filePath);
         int trackCount = mediaExtractor.getTrackCount();
         if(trackCount != 1){
-           // throw new RuntimeException("TrackCount = " + trackCount + ". Only Single Track is supported");
+            // throw new RuntimeException("TrackCount = " + trackCount + ". Only Single Track is supported");
         }
         mediaExtractor.selectTrack(0);
     }
@@ -172,4 +186,12 @@ public class H264DecodeThread extends Thread {
         return format;
     }
 
+
+    static String getHex(byte[] raw) {
+        final StringBuilder hex = new StringBuilder(2 * raw.length);
+        for (final byte b : raw) {
+            hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+        }
+        return hex.toString();
+    }
 }

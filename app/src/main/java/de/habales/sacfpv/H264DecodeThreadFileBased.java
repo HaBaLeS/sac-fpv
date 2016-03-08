@@ -73,6 +73,8 @@ public class H264DecodeThreadFileBased extends Thread {
             while((cnt = fin.read(inBuf,0,UDP_MAX_SIZE)) > 0){
                 for(int i=0; inBuf.length > i; i++){
                     byte b = inBuf[i];//get on byte
+                    outBuffer[outBufPos] = b;
+                    outBufPos++;
 
                     //we have 0x00 and we have less than 2 0x00 in a row
                     if(b == 0x00 && nzc <3){
@@ -80,13 +82,15 @@ public class H264DecodeThreadFileBased extends Thread {
                     } else if(nzc >=3) {
                         //count is > 2 so we found a NAL. this means a new Block starts now
                         //System.out.println("Data: " + getHex(Arrays.copyOfRange(outBuffer, 0, outBufPos)));
+                        outBuffer[0] = 0;
+                        outBuffer[1] = 0;
+                        outBuffer[2] = 0;
+                        outBuffer[3] = 1;
                         processNALU(outBuffer, 0, outBufPos);
-                        outBufPos = 0;
+                        outBufPos = 4;
 
                         nzc = 0; //Reset 0x00 counter
                     } else {
-                        outBuffer[outBufPos] = b; //copy to outBuffer
-                        outBufPos++;
                         nzc = 0;
                     }
                 }
@@ -114,6 +118,7 @@ public class H264DecodeThreadFileBased extends Thread {
         if (inputBufIndex >= 0) {
             ByteBuffer inputBuffer = inputBuffers[inputBufIndex]; //changed with android >= 20
             inputBuffer.put(outBuffer,0,outBufPos);
+            inputBuffer.rewind();
             decoder.queueInputBuffer(inputBufIndex, 0, outBufPos, 0, 0); //Set data back to codec
         } else {
             Log.d(TAG, "NO Input buffer for me :-( " + inputBufIndex );
