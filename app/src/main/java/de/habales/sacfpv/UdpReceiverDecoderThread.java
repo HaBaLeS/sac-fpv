@@ -1,27 +1,14 @@
 package de.habales.sacfpv;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaFormat;
-import android.media.MediaPlayer;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.Display;
 import android.view.Surface;
-import android.widget.Toast;
 
-import org.jcodec.codecs.h264.H264Const;
-import org.jcodec.codecs.h264.H264Utils;
-import org.jcodec.codecs.h264.io.model.PictureParameterSet;
-import org.jcodec.codecs.h264.io.model.SeqParameterSet;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;

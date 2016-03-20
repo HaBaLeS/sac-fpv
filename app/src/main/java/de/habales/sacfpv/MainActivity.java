@@ -2,12 +2,10 @@ package de.habales.sacfpv;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-
-import org.jcodec.common.DictionaryCompressor;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button mSurfaceTextureB=(Button)findViewById(R.id.button2);
+        Button mSurfaceTextureB=(Button)findViewById(R.id.testBroadcast);
         mTextureViewI=new Intent();
-        mTextureViewI.setClass(this, TextureViewActivity.class);
+        mTextureViewI.setClass(this, BroadcastTestActivity.class);
         mSurfaceTextureB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.ByteBuffer;
@@ -61,7 +62,7 @@ public class H264DecodeThreadUDP extends Thread {
 
 
     public static String VIDEO_MULTICAST_IP = "224.0.0.222";
-    public static int VIDEO_MULTICAST_PORT = 5561;
+    public static int VIDEO_MULTICAST_PORT = 50666;
     byte[] message = new byte[outSize];
 
     /**
@@ -87,16 +88,13 @@ public class H264DecodeThreadUDP extends Thread {
 
         try {
 
-            //DatagramSocket dataSocket = new DatagramSocket(VIDEO_MULTICAST_PORT);
-            MulticastSocket multicastSocket = new MulticastSocket(VIDEO_MULTICAST_PORT);
-            multicastSocket.joinGroup(InetAddress.getByName(VIDEO_MULTICAST_IP));
+            DatagramSocket dataSocket = new DatagramSocket(VIDEO_MULTICAST_PORT);
             DatagramPacket packet = new DatagramPacket(message, message.length);
 
 
 
             while (true) {
-                multicastSocket.receive(packet);
-                //System.out.println(packet.getLength());
+                dataSocket.receive(packet);
                 feed(message, packet.getOffset(), packet.getLength());
             }
 
@@ -108,8 +106,6 @@ public class H264DecodeThreadUDP extends Thread {
 
 
     public void feed(byte[] data, int offest ,int lenth)throws Exception{
-
-
 
                 for(int i=offest; lenth > i; i++){
                     byte b = data[i];//get on byte
@@ -151,9 +147,6 @@ public class H264DecodeThreadUDP extends Thread {
     }
 
     void processFrame(byte[] frameData, int len){
-
-       Log.d(TAG, "NEXT");
-
         /*
         In broad terms, a codec processes input data to generate output data.
         It processes data asynchronously and uses a set of input and output buffers.
@@ -200,7 +193,6 @@ public class H264DecodeThreadUDP extends Thread {
 
         int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 0);
         if (outputBufferIndex >= 0) {
-            Log.d(TAG, "SR " + outputBufferIndex);
             //ByteBuffer outputBuffer = decoder.getOutputBuffers()[outputBufferIndex]; not needed
             mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
         }else if (outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
@@ -239,7 +231,8 @@ public class H264DecodeThreadUDP extends Thread {
 
         //first bit should be 0 sp mask with 1000 0000 an test > 0
         if( (b01 & 0x80) != 0){
-            throw new RuntimeException("First Bit mus be 0");
+            return -1;
+            //throw new RuntimeException("First Bit must be 0");
         }
 
         //we want bt 2-3 so bitmask = 0110 0000
@@ -264,7 +257,9 @@ public class H264DecodeThreadUDP extends Thread {
                 //System.out.println("Picture parameter set");
                 return nal_unit_type;
             default:
-                throw new RuntimeException("New an unhandled nale_unit_type " + nal_unit_type);
+                //throw new RuntimeException("New an unhandled nale_unit_type " + nal_unit_type);
+                Log.w(TAG, "analyzeNALU: Unknown NALU TYPE: " + nal_unit_type);
+                return -1;
         }
     }
 

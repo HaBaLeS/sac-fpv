@@ -22,9 +22,8 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start TextureView Player"
-        android:id="@+id/button2"
-        android:layout_below="@+id/button"
+        android:text="Test Connection Broadcast"
+        android:id="@+id/testBroadcast"
         android:textSize="16dp"
          />
 
